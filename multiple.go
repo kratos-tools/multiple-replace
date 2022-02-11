@@ -6,7 +6,7 @@ type Multiple struct {
 	dispatcher Dispatcher
 }
 
-func NewNultiple(producer Producer, worker Worker, dispatcher Dispatcher) *Multiple {
+func NewMultiple(producer Producer, worker Worker, dispatcher Dispatcher) *Multiple {
 	return &Multiple{
 		producer,
 		worker,
