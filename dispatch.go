@@ -2,6 +2,7 @@ package multiple
 
 import (
 	"sync"
+	"time"
 )
 
 type Dispatcher interface {
@@ -37,6 +38,7 @@ func (d *defaultDispatcher) Dispatch(producer Producer, worker Worker) {
 	// start workers
 	WWG.Add(1)
 	go func() {
+		exit := false
 		done := false
 		tokenQueue := make(chan int, workerCount)
 		for i := 0; i < workerCount; i++ {
@@ -44,15 +46,21 @@ func (d *defaultDispatcher) Dispatch(producer Producer, worker Worker) {
 		}
 
 		data := <-dataQueue
-		for !done {
+		for !exit {
 			_ = <-tokenQueue
-			go func() {
+			go func(d interface{}) {
 				defer func() { tokenQueue <- 1 }()
-				worker.Apply(data)
-			}()
+				worker.Apply(d)
+			}(data)
+
+			timeout := time.After(5 * time.Second)
 			select {
 			case data = <-dataQueue:
 			case done = <-doneQueue:
+			case <-timeout:
+				if done {
+					exit = true
+				}
 			}
 		}
 
