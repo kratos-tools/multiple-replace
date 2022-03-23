@@ -2,7 +2,6 @@ package multiple
 
 import (
 	"sync"
-	"time"
 )
 
 type Dispatcher interface {
@@ -53,13 +52,16 @@ func (d *defaultDispatcher) Dispatch(producer Producer, worker Worker) {
 				worker.Apply(d)
 			}(data)
 
-			timeout := time.After(5 * time.Second)
-			select {
-			case data = <-dataQueue:
-			case done = <-doneQueue:
-			case <-timeout:
-				if done {
+			if done {
+				select {
+				case data = <-dataQueue:
+				default:
 					exit = true
+				}
+			} else {
+				select {
+				case data = <-dataQueue:
+				case done = <-doneQueue:
 				}
 			}
 		}
