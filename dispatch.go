@@ -46,7 +46,7 @@ func (d *defaultDispatcher) Dispatch(producer Producer, worker Worker) {
 
 		data := <-dataQueue
 		for !exit {
-			_ = <-tokenQueue
+			<-tokenQueue
 			go func(d interface{}) {
 				defer func() { tokenQueue <- 1 }()
 				worker.Apply(d)
@@ -68,7 +68,7 @@ func (d *defaultDispatcher) Dispatch(producer Producer, worker Worker) {
 
 		// wait all work done
 		for i := 0; i < workerCount; i++ {
-			_ = <-tokenQueue
+			<-tokenQueue
 		}
 		WWG.Done()
 	}()
