@@ -1,7 +1,6 @@
 package multiple
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -46,11 +45,8 @@ func (d *defaultDispatcher) Dispatch(producer Producer, worker Worker) {
 		}
 
 		data := <-dataQueue
-		fmt.Println("done", done)
-		fmt.Println("exit", exit)
 		for !exit {
 			<-tokenQueue
-			fmt.Println("dispatch :", count)
 			count++
 			go func(d interface{}) {
 				defer func() { tokenQueue <- 1 }()
@@ -60,22 +56,17 @@ func (d *defaultDispatcher) Dispatch(producer Producer, worker Worker) {
 			if done {
 				select {
 				case data = <-dataQueue:
-					fmt.Println("queue5")
 				default:
-					fmt.Println("queue4")
 					exit = true
 				}
 			} else {
 				select {
 				case data = <-dataQueue:
-					fmt.Println("queue1")
 				case done = <-doneQueue:
 					select {
 					case data = <-dataQueue:
-						fmt.Println("queue2")
 					default:
 						exit = true
-						fmt.Println("queue3")
 					}
 				}
 			}
