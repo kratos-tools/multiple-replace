@@ -5,7 +5,7 @@ type Multiple struct {
 	worker     Worker
 	dispatcher Dispatcher
 }
-
+// fork file
 func NewMultiple(producer Producer, worker Worker, dispatcher Dispatcher) *Multiple {
 	return &Multiple{
 		producer,
